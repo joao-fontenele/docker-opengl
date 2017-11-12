@@ -1,5 +1,5 @@
 COMPILER=g++
-EXECUTABLE=main a b d
+EXECUTABLE=main a b c d
 FLAGS=-Wall -g
 LIBRARIES=-lm -lGL -lGLU -lglut
 SOURCES=$(wildcard *.c)
