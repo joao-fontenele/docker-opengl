@@ -1,5 +1,5 @@
 COMPILER=g++
-EXECUTABLE=main a b
+EXECUTABLE=main a b d
 FLAGS=-Wall -g
 LIBRARIES=-lm -lGL -lGLU -lglut
 SOURCES=$(wildcard *.c)
@@ -20,6 +20,12 @@ b: b.c
 	$(COMPILER) $(FLAGS) -o $@ $^ $(LIBRARIES)
 
 c: c.c
+	$(COMPILER) $(FLAGS) -o $@ $^ $(LIBRARIES)
+
+d: d.c
+	$(COMPILER) $(FLAGS) -o $@ $^ $(LIBRARIES)
+
+e: e.c
 	$(COMPILER) $(FLAGS) -o $@ $^ $(LIBRARIES)
 
 clean:
