@@ -1,5 +1,5 @@
 COMPILER=g++
-EXECUTABLE=main
+EXECUTABLE=main a b
 FLAGS=-Wall -g
 LIBRARIES=-lm -lGL -lGLU -lglut
 SOURCES=$(wildcard *.c)
@@ -10,11 +10,17 @@ OBJECTS=$(SOURCES:.c=.o)
 
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): $(OBJECTS)
+main: main.c
 	$(COMPILER) $(FLAGS) -o $@ $^ $(LIBRARIES)
 
-%.o: %.c $(HEADERS)
-	$(COMPILER) $(FLAGS) -c $<
+a: a.c
+	$(COMPILER) $(FLAGS) -o $@ $^ $(LIBRARIES)
+
+b: b.c
+	$(COMPILER) $(FLAGS) -o $@ $^ $(LIBRARIES)
+
+c: c.c
+	$(COMPILER) $(FLAGS) -o $@ $^ $(LIBRARIES)
 
 clean:
 	rm -f *.o $(EXECUTABLE) *~
