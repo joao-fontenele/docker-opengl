@@ -10,7 +10,9 @@
 #define STEPS 200
 #define PADDLE_HEIGHT 15.0
 #define PADDLE_WIDTH 70.0
-#define PADDLE_MOVE 1.0
+#define PADDLE_MOVE 2.0
+#define BALL_RADIUS 8.0
+#define BALL_SPEED_FACTOR 1.01
 #define MAX_Y 500
 #define MAX_X 700
 
@@ -33,6 +35,12 @@ float p1Y = (float) MAX_Y / 2.0;
 float p2Y = (float) MAX_Y / 2.0;
 float maxPY = MAX_Y - (PADDLE_WIDTH / 2.0);
 float minPY = 0 + PADDLE_WIDTH / 2.0;
+
+
+float ballX = 100;
+float ballY = 100;
+float ballVx = 1.5;
+float ballVy = 1.5;
 
 typedef struct point {
     float x, y, z;
@@ -79,14 +87,20 @@ void drawPaddle(player) {
   glEnd();
 }
 
+void drawBall() {
+  displayCircle(ballX, ballY, BALL_RADIUS, 100);
+}
+
 void draw() {
-  printf("\ndrawing");
+  // printf("\ndrawing");
   long double now = fTime();
   lastRender = now;
 
   glClear(GL_COLOR_BUFFER_BIT);
-  drawPaddle(0);
   drawPaddle(1);
+  drawPaddle(2);
+
+  drawBall();
 
   glFlush();
 }
@@ -121,13 +135,73 @@ void moveRoutine() {
   }
 }
 
+int isColliding() {
+  float halfWidth = PADDLE_WIDTH / 2.0;
+  if (ballX <= PADDLE_HEIGHT) {
+    if (ballY <= p1Y + halfWidth && ballY >= p1Y - halfWidth) {
+      ballX = PADDLE_HEIGHT;
+      ballVx = -ballVx;
+      return 1;
+    }
+  }
+
+  if (ballX >= MAX_X - PADDLE_HEIGHT) {
+    if (ballY <= p2Y + halfWidth && ballY >= p2Y - halfWidth) {
+      ballX = MAX_X - PADDLE_HEIGHT;
+      ballVx = -ballVx;
+      return 2;
+    }
+  }
+
+  return 0;
+}
+
+void ballRoutine() {
+  ballX += ballVx;
+  ballY += ballVy;
+  float maxBallY = MAX_Y - BALL_RADIUS;
+  float maxBallX = MAX_X - BALL_RADIUS;
+
+  if (isColliding()) {
+    printf("isColliding\n");
+    // deal with it
+    ballVx *= BALL_SPEED_FACTOR;
+    ballVy *= BALL_SPEED_FACTOR;
+  }
+
+  // player 2 score
+  if (ballX < BALL_RADIUS) {
+      printf("player2 score\n");
+      ballX = BALL_RADIUS;
+      ballVx = -ballVx;
+  }
+
+  // player 1 score
+  if (ballX > maxBallX) {
+      printf("player1 score\n");
+      ballX = maxBallX;
+      ballVx = -ballVx;
+  }
+
+  if (ballY < BALL_RADIUS) {
+      ballY = BALL_RADIUS;
+      ballVy = -ballVy;
+  }
+
+  if (ballY > maxBallY) {
+      ballY = maxBallY;
+      ballVy = -ballVy;
+  }
+}
+
 void idle() {
   long double now = fTime();
   long double delta = now - lastRender;
 
-  if (delta > 0.048) {
-    printf("\ndelta = %Lf\n", delta);
+  if (delta > 0.0048) {
+    // printf("\ndelta = %Lf\n", delta);
     moveRoutine();
+    ballRoutine();
     glutPostRedisplay();
   }
 }
