@@ -1,3 +1,29 @@
+Projetos de Computação Gráfica
+------------------------------
+
+Neste repositório estão os laboratórios da disciplina de Introdução à Computação Gráfica de 2017/2, na UFAM.
+
+Os laboratórios em si, estão na pasta `exercises`, e todos possuem um makefile, que em geral, gera um executável, `main`
+
+Docker
+------
+
+A única dependência deste repositório é o [Docker (Community Edition)](https://www.docker.com)
+
+Este repositório é um fork de um projeto de docker com OpenGL. Para rodar um container docker.
+
+```
+cd exercises
+docker build -t icg-image .
+./run.sh
+```
+
+Abra um outro terminal e rode o comando abaixo para entrar na pasta do projeto, no container criado acima
+
+```
+docker exec -it icg bash
+```
+
 docker-opengl
 =============
 A docker image that supports rendering graphical applications, including OpenGL apps.
