@@ -18,20 +18,13 @@
 #define MAX_Y 500
 #define MAX_X 700
 
-long double fTime() {
-  struct timeval t;
-  gettimeofday(&t, NULL);
-
-  return 1.0 * t.tv_sec + 1e-6 * t.tv_usec;
-}
+int p1Score = 0;
+int p2Score = 0;
 
 int p1UpPressed = 0;
 int p2UpPressed = 0;
 int p1DownPressed = 0;
 int p2DownPressed = 0;
-
-int frames = 0;
-long double lastRender;
 
 float p1Y = (float) MAX_Y / 2.0;
 float p2Y = (float) MAX_Y / 2.0;
@@ -92,12 +85,27 @@ void drawBall() {
   displayCircle(ballX, ballY, BALL_RADIUS, 25);
 }
 
+void drawBitmapString(float x, float y, char *string){
+    const char *c;
+    glRasterPos2f(x, y);
+    for (c = string; *c != '\0'; c++) {
+        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *c);
+    }
+}
+
+void drawScore() {
+  char str[10];
+  sprintf(str, "%d - %d", p1Score, p2Score);
+  drawBitmapString(MAX_X / 2.0 - 5, MAX_Y - 20.0, str);
+}
+
 void draw() {
   glClear(GL_COLOR_BUFFER_BIT);
   drawPaddle(1); // draw p1
   drawPaddle(2); // draw p2
 
   drawBall();
+  drawScore();
 
   glutSwapBuffers();
 }
@@ -166,14 +174,14 @@ void ballRoutine() {
 
   // player 2 score
   if (ballX < BALL_RADIUS) {
-      printf("player2 score\n");
+      p2Score += 1;
       ballX = BALL_RADIUS;
       ballVx = -ballVx;
   }
 
   // player 1 score
   if (ballX > maxBallX) {
-      printf("player1 score\n");
+      p1Score += 1;
       ballX = maxBallX;
       ballVx = -ballVx;
   }
