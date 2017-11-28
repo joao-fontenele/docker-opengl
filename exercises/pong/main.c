@@ -18,6 +18,8 @@
 #define MAX_Y 500
 #define MAX_X 700
 
+int isStarted = 0;
+
 int p1Score = 0;
 int p2Score = 0;
 
@@ -31,8 +33,9 @@ float p2Y = (float) MAX_Y / 2.0;
 float maxPY = MAX_Y - (PADDLE_WIDTH / 2.0);
 float minPY = 0 + PADDLE_WIDTH / 2.0;
 
-float ballX = 100;
-float ballY = 100;
+// ball starts at the center of p1 paddle
+float ballX = PADDLE_HEIGHT + BALL_RADIUS;
+float ballY = (float) MAX_Y / 2.0;
 float ballVx = BALL_INITIAL_SPEED;
 float ballVy = BALL_INITIAL_SPEED;
 
@@ -138,6 +141,10 @@ void moveRoutine() {
         p2Y = minPY;
       }
   }
+
+  if (!isStarted) {
+    ballY = p1Y;
+  }
 }
 
 int isColliding() {
@@ -198,8 +205,10 @@ void ballRoutine() {
 }
 
 void routines() {
+  if (isStarted) {
+    ballRoutine();
+  }
   moveRoutine();
-  ballRoutine();
   glutPostRedisplay();
   glutTimerFunc(UPDATE_RATE, routines, 1);
 }
@@ -222,7 +231,8 @@ void keyInputPressed(unsigned char key, int x, int y) {
       p2DownPressed = 1;
       break;
     case ' ':
-      printf("loooool\n");
+      isStarted = 1;
+       break;
     default:
       break;
   }
