@@ -10,9 +10,24 @@
 #define STEPS 200
 #define PADDLE_HEIGHT 15.0
 #define PADDLE_WIDTH 70.0
-#define PADDLE_MOVE 17.0
+#define PADDLE_MOVE 1.0
 #define MAX_Y 500
 #define MAX_X 700
+
+long double fTime() {
+  struct timeval t;
+  gettimeofday(&t, NULL);
+
+  return 1.0 * t.tv_sec + 1e-6 * t.tv_usec;
+}
+
+int p1UpPressed = 0;
+int p2UpPressed = 0;
+int p1DownPressed = 0;
+int p2DownPressed = 0;
+
+int frames = 0;
+long double lastRender;
 
 float p1Y = (float) MAX_Y / 2.0;
 float p2Y = (float) MAX_Y / 2.0;
@@ -65,6 +80,10 @@ void drawPaddle(player) {
 }
 
 void draw() {
+  printf("\ndrawing");
+  long double now = fTime();
+  lastRender = now;
+
   glClear(GL_COLOR_BUFFER_BIT);
   drawPaddle(0);
   drawPaddle(1);
@@ -72,41 +91,88 @@ void draw() {
   glFlush();
 }
 
-void keyInput(unsigned char key, int x, int y) {
+void moveRoutine() {
+  if (p1UpPressed) {
+    p1Y += PADDLE_MOVE;
+      if (p1Y > maxPY) {
+        p1Y = maxPY;
+      }
+  }
+
+  if (p1DownPressed) {
+    p1Y -= PADDLE_MOVE;
+      if (p1Y < minPY) {
+        p1Y = minPY;
+      }
+  }
+
+  if (p2UpPressed) {
+    p2Y += PADDLE_MOVE;
+      if (p2Y > maxPY) {
+        p2Y = maxPY;
+      }
+  }
+
+  if (p2DownPressed) {
+    p2Y -= PADDLE_MOVE;
+      if (p2Y < minPY) {
+        p2Y = minPY;
+      }
+  }
+}
+
+void idle() {
+  long double now = fTime();
+  long double delta = now - lastRender;
+
+  if (delta > 0.048) {
+    printf("\ndelta = %Lf\n", delta);
+    moveRoutine();
+    glutPostRedisplay();
+  }
+}
+
+void keyInputPressed(unsigned char key, int x, int y) {
   switch(key) {
     case 27:
       exit(0);
       break;
     case 'w':
-      p1Y += PADDLE_MOVE;
-      if (p1Y > maxPY) {
-        p1Y = maxPY;
-      }
+      p1UpPressed = 1;
       break;
     case 's':
-      p1Y -= PADDLE_MOVE;
-      if (p1Y < minPY) {
-        p1Y = minPY;
-      }
+      p1DownPressed = 1;
       break;
     case 'i':
-      p2Y += PADDLE_MOVE;
-      if (p2Y > maxPY) {
-        p2Y = maxPY;
-      }
+      p2UpPressed = 1;
       break;
     case 'k':
-      p2Y -= PADDLE_MOVE;
-      if (p2Y < minPY) {
-        p2Y = minPY;
-      }
+      p2DownPressed = 1;
       break;
     case ' ':
       printf("loooool\n");
     default:
       break;
   }
-  glutPostRedisplay();
+}
+
+void keyInputReleased(unsigned char key, int x, int y) {
+  switch(key) {
+    case 'w':
+      p1UpPressed = 0;
+      break;
+    case 's':
+      p1DownPressed = 0;
+      break;
+    case 'i':
+      p2UpPressed = 0;
+      break;
+    case 'k':
+      p2DownPressed = 0;
+      break;
+    default:
+      break;
+  }
 }
 
 int main(int argc, char** argv) {
@@ -118,9 +184,10 @@ int main(int argc, char** argv) {
   gluOrtho2D(0.0, MAX_X, 0.0, MAX_Y);
   glMatrixMode(GL_PROJECTION);
 
-  // glutKeyboardUpFunc()
-  glutKeyboardFunc(keyInput);
+  glutKeyboardUpFunc(keyInputReleased);
+  glutKeyboardFunc(keyInputPressed);
   glutDisplayFunc(draw);
+  glutIdleFunc(idle);
   glutMainLoop();
 
   return 0;
