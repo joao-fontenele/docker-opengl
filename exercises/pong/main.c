@@ -7,12 +7,14 @@
 #include <sys/time.h>
 
 #define PI 3.14159
+#define UPDATE_RATE 48
 #define STEPS 200
 #define PADDLE_HEIGHT 15.0
 #define PADDLE_WIDTH 70.0
-#define PADDLE_MOVE 2.0
+#define PADDLE_MOVE 14.0
 #define BALL_RADIUS 8.0
-#define BALL_SPEED_FACTOR 1.01
+#define BALL_SPEED_FACTOR 1.05
+#define BALL_INITIAL_SPEED 9.0
 #define MAX_Y 500
 #define MAX_X 700
 
@@ -36,11 +38,10 @@ float p2Y = (float) MAX_Y / 2.0;
 float maxPY = MAX_Y - (PADDLE_WIDTH / 2.0);
 float minPY = 0 + PADDLE_WIDTH / 2.0;
 
-
 float ballX = 100;
 float ballY = 100;
-float ballVx = 1.5;
-float ballVy = 1.5;
+float ballVx = BALL_INITIAL_SPEED;
+float ballVy = BALL_INITIAL_SPEED;
 
 typedef struct point {
     float x, y, z;
@@ -88,21 +89,17 @@ void drawPaddle(player) {
 }
 
 void drawBall() {
-  displayCircle(ballX, ballY, BALL_RADIUS, 100);
+  displayCircle(ballX, ballY, BALL_RADIUS, 25);
 }
 
 void draw() {
-  // printf("\ndrawing");
-  long double now = fTime();
-  lastRender = now;
-
   glClear(GL_COLOR_BUFFER_BIT);
-  drawPaddle(1);
-  drawPaddle(2);
+  drawPaddle(1); // draw p1
+  drawPaddle(2); // draw p2
 
   drawBall();
 
-  glFlush();
+  glutSwapBuffers();
 }
 
 void moveRoutine() {
@@ -163,8 +160,6 @@ void ballRoutine() {
   float maxBallX = MAX_X - BALL_RADIUS;
 
   if (isColliding()) {
-    printf("isColliding\n");
-    // deal with it
     ballVx *= BALL_SPEED_FACTOR;
     ballVy *= BALL_SPEED_FACTOR;
   }
@@ -194,16 +189,11 @@ void ballRoutine() {
   }
 }
 
-void idle() {
-  long double now = fTime();
-  long double delta = now - lastRender;
-
-  if (delta > 0.0048) {
-    // printf("\ndelta = %Lf\n", delta);
-    moveRoutine();
-    ballRoutine();
-    glutPostRedisplay();
-  }
+void routines() {
+  moveRoutine();
+  ballRoutine();
+  glutPostRedisplay();
+  glutTimerFunc(UPDATE_RATE, routines, 1);
 }
 
 void keyInputPressed(unsigned char key, int x, int y) {
@@ -251,7 +241,8 @@ void keyInputReleased(unsigned char key, int x, int y) {
 
 int main(int argc, char** argv) {
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_MULTISAMPLE);
+  glEnable(GL_MULTISAMPLE);
 
   glutInitWindowSize(MAX_X, MAX_Y);
   glutCreateWindow("Pong");
@@ -261,7 +252,7 @@ int main(int argc, char** argv) {
   glutKeyboardUpFunc(keyInputReleased);
   glutKeyboardFunc(keyInputPressed);
   glutDisplayFunc(draw);
-  glutIdleFunc(idle);
+  glutTimerFunc(UPDATE_RATE, routines, 1);
   glutMainLoop();
 
   return 0;
