@@ -258,6 +258,11 @@ void keyInputReleased(unsigned char key, int x, int y) {
 }
 
 int main(int argc, char** argv) {
+  printf("press <space bar> to start game\n");
+  printf("press <Esc> to exit\n");
+  printf("press <w>, <s> to move p1 paddle up and down\n");
+  printf("press <i>, <k> to move p2 paddle up and down\n");
+  printf("the game never ends\n");
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_MULTISAMPLE);
   glEnable(GL_MULTISAMPLE);
